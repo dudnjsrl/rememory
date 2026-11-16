@@ -154,7 +154,7 @@ font-size:12px;color:var(--muted);line-height:1.6}
     </div>
     <div class="field">
       <label>공부한 내용</label>
-      <textarea id="studyContent" placeholder="예: 수학 - 이차방정식의 활용"></textarea>
+      <textarea id="studyContent" placeholder="예: 영어 - 단어 외우기"></textarea>
     </div>
     <div class="field">
       <label>공부한 날짜</label>
@@ -164,7 +164,7 @@ font-size:12px;color:var(--muted);line-height:1.6}
   </div>
   <div class="panel">
     <h2>복습 일정</h2>
-    <p class="muted">공부한 날짜를 기준으로 1일, 3일, 7일, 15일, 30일 뒤에 복습 일정이 자동으로 생성돼.</p>
+    <p class="muted">공부한 날짜를 기준으로 1일, 3일, 7일, 15일, 30일 뒤에 복습 일정이 자동으로 생성됨.</p>
   </div>
 </section>
 
@@ -192,7 +192,7 @@ font-size:12px;color:var(--muted);line-height:1.6}
       <button class="icon-btn" onclick="moveMonth(1)">▶</button>
     </div>
     <div class="calendar" id="calendarGrid"></div>
-    <p class="muted">● 표시가 있는 날짜를 누르면 해당 날짜의 일정을 볼 수 있어.</p>
+    <p class="muted">● 표시가 있는 날짜를 누르면 해당 날짜의 일정을 볼 수 있음.</p>
   </div>
   <div class="panel">
     <h2 id="selectedTitle">날짜별 일정</h2>
@@ -502,7 +502,7 @@ function renderReviews() {
   });
   document.getElementById("reviewList").innerHTML=list.length?
     list.map(r=>reviewHTML(r.study,r.index)).join():
-    '<div class="empty">해당하는 복습이 없어!</div>';
+    '<div class="empty">해당하는 복습이 없</div>';
 }
 function renderHome() {
   const list=allReviews();

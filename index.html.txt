@@ -1,0 +1,720 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE:MEMORY - 나만의 복습 플래너</title>
+<style>
+:root {
+  --bg:#f4f5fa; --panel:#fff; --text:#202338; --muted:#85899b;
+  --primary:#7165e8; --primary2:#eeeaff; --border:#e8e9f0;
+  --green:#25a878; --red:#e45d6b; --gold:#e6a82e;
+}
+body.dark {
+  --bg:#171824; --panel:#222435; --text:#f1f1fa; --muted:#a3a6ba;
+  --primary:#a49aff; --primary2:#37334f; --border:#37394d;
+  --green:#4bd0a0; --red:#ff7786; --gold:#f3c35e;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,"Malgun Gothic",sans-serif;transition:.2s}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.app{max-width:1150px;margin:auto;padding:20px}
+header{display:flex;align-items:center;justify-content:space-between;
+gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:900;letter-spacing:1px;color:var(--primary)}
+.logo small{display:block;font-size:11px;color:var(--muted);letter-spacing:2px}
+.header-right{display:flex;align-items:center;gap:10px}
+.coin{background:var(--primary2);color:var(--gold);padding:11px 15px;
+border-radius:12px;font-weight:bold}
+.icon-btn{background:var(--panel);color:var(--text);border:1px solid var(--border)}
+nav{display:flex;gap:7px;overflow-x:auto;padding-bottom:12px;margin-bottom:16px}
+nav button{white-space:nowrap;background:var(--panel);color:var(--muted);
+border:1px solid var(--border)}
+nav button.active{background:var(--primary);color:white;border-color:var(--primary)}
+.panel{background:var(--panel);border:1px solid var(--border);
+border-radius:17px;padding:20px;margin-bottom:16px}
+h2{font-size:19px;margin:0 0 16px}
+h3{font-size:15px;margin:0 0 10px}
+.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:var(--primary2);border-radius:13px;padding:16px}
+.stat strong{display:block;font-size:25px;margin-top:8px}
+.stat span{font-size:12px;color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+label{font-size:13px;color:var(--muted)}
+input,select,textarea{width:100%;padding:12px;border-radius:10px;
+border:1px solid var(--border);background:var(--bg);color:var(--text)}
+textarea{min-height:85px;resize:vertical}
+.primary{background:var(--primary);color:white;font-weight:bold}
+.secondary{background:var(--primary2);color:var(--primary)}
+.danger{background:#ffe9ec;color:#d34d5b}
+.success{background:#e4f7ef;color:#198b62}
+.small{padding:7px 10px;font-size:12px}
+.item{padding:14px 0;border-bottom:1px solid var(--border)}
+.item:last-child{border-bottom:0}
+.tag{display:inline-block;padding:4px 8px;border-radius:7px;
+background:var(--primary2);color:var(--primary);font-size:11px;margin-right:5px}
+.reward{color:var(--gold);font-weight:bold}
+.late{color:var(--red);font-weight:bold}
+.done{color:var(--green);font-weight:bold}
+.empty{text-align:center;padding:30px 10px;color:var(--muted)}
+.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day-name{text-align:center;color:var(--muted);font-size:12px;padding:7px}
+.day{min-height:75px;background:var(--bg);border:1px solid var(--border);
+border-radius:9px;padding:6px;font-size:12px;cursor:pointer}
+.day.other{opacity:.35}
+.day.today{border:2px solid var(--primary)}
+.day.selected{background:var(--primary2);border-color:var(--primary)}
+.day.has-event:after{content:"●";display:block;color:var(--primary);font-size:10px;margin-top:5px}
+.subject-row{display:flex;justify-content:space-between;align-items:center;
+padding:9px 0;border-bottom:1px solid var(--border)}
+.bar-bg{height:9px;background:var(--bg);border-radius:10px;overflow:hidden;margin-top:7px}
+.bar{height:100%;background:var(--primary);border-radius:10px}
+.room-preview{min-height:210px;border-radius:15px;padding:18px;
+display:flex;flex-direction:column;justify-content:space-between;align-items:center;
+background:linear-gradient(135deg,#d9e8ff,#e9ddff);color:#30334c}
+.room-floor{font-size:48px}
+.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.shop-item{border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.shop-item .emoji{font-size:32px;margin:8px}
+.shop-item button{width:100%;margin-top:8px}
+.hidden{display:none!important}
+.notice{padding:12px;background:var(--primary2);border-radius:10px;
+font-size:12px;color:var(--muted);line-height:1.6}
+@media(max-width:700px){
+ .app{padding:12px}.grid{grid-template-columns:repeat(2,1fr)}
+ .form-grid{grid-template-columns:1fr}.shop-grid{grid-template-columns:repeat(2,1fr)}
+ .panel{padding:15px}.day{min-height:58px;padding:4px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">RE:MEMORY<small>REMEMBER WHAT YOU LEARN</small></div>
+  <div class="header-right">
+    <div class="coin">🪙 <span id="coinBalance">0</span></div>
+    <button class="icon-btn" onclick="toggleDark()">🌙</button>
+  </div>
+</header>
+
+<nav id="nav">
+  <button class="active" data-page="home">홈</button>
+  <button data-page="add">공부 등록</button>
+  <button data-page="review">복습 목록</button>
+  <button data-page="calendar">달력</button>
+  <button data-page="todo">할 일</button>
+  <button data-page="stats">통계</button>
+  <button data-page="subjects">과목 관리</button>
+  <button data-page="room">공부방 꾸미기</button>
+</nav>
+
+<section id="home" class="page">
+  <div class="panel">
+    <h2>오늘의 학습 현황 👋</h2>
+    <div class="grid">
+      <div class="stat"><span>오늘 복습할 항목</span><strong id="todayCount">0</strong></div>
+      <div class="stat"><span>복습 완료</span><strong id="doneCount">0</strong></div>
+      <div class="stat"><span>전체 공부 기록</span><strong id="studyCount">0</strong></div>
+      <div class="stat"><span>보유 코인</span><strong id="homeCoins">0 🪙</strong></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="row">
+      <h2>오늘의 복습</h2>
+      <button class="secondary small" onclick="showPage('review')">전체 보기</button>
+    </div>
+    <div id="homeReviews"></div>
+  </div>
+  <div class="panel">
+    <h2>복습 보상 안내</h2>
+    <div class="grid">
+      <div class="stat"><span>1차 복습</span><strong>5 🪙</strong></div>
+      <div class="stat"><span>2차 복습</span><strong>20 🪙</strong></div>
+      <div class="stat"><span>3차 복습</span><strong>100 🪙</strong></div>
+      <div class="stat"><span>4차 복습</span><strong>300 🪙</strong></div>
+    </div>
+    <p class="muted">5차 복습 500코인 · 5회 완주 보너스 100코인</p>
+  </div>
+</section>
+
+<section id="add" class="page hidden">
+  <div class="panel">
+    <h2>새로운 공부 등록 ✏️</h2>
+    <div class="field">
+      <label>과목</label>
+      <select id="studySubject"></select>
+    </div>
+    <div class="field">
+      <label>공부한 내용</label>
+      <textarea id="studyContent" placeholder="예: 수학 - 이차방정식의 활용"></textarea>
+    </div>
+    <div class="field">
+      <label>공부한 날짜</label>
+      <input type="date" id="studyDate">
+    </div>
+    <button class="primary" onclick="addStudy()">공부 기록 저장하기</button>
+  </div>
+  <div class="panel">
+    <h2>복습 일정</h2>
+    <p class="muted">공부한 날짜를 기준으로 1일, 3일, 7일, 15일, 30일 뒤에 복습 일정이 자동으로 생성돼.</p>
+  </div>
+</section>
+
+<section id="review" class="page hidden">
+  <div class="panel">
+    <h2>복습 목록 📚</h2>
+    <div class="field">
+      <label>목록 보기</label>
+      <select id="reviewFilter" onchange="renderReviews()">
+        <option value="all">전체 복습</option>
+        <option value="today">오늘 복습</option>
+        <option value="late">밀린 복습</option>
+        <option value="done">완료한 복습</option>
+      </select>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+</section>
+
+<section id="calendar" class="page hidden">
+  <div class="panel">
+    <div class="calendar-head">
+      <button class="icon-btn" onclick="moveMonth(-1)">◀</button>
+      <h2 id="monthTitle"></h2>
+      <button class="icon-btn" onclick="moveMonth(1)">▶</button>
+    </div>
+    <div class="calendar" id="calendarGrid"></div>
+    <p class="muted">● 표시가 있는 날짜를 누르면 해당 날짜의 일정을 볼 수 있어.</p>
+  </div>
+  <div class="panel">
+    <h2 id="selectedTitle">날짜별 일정</h2>
+    <div id="selectedEvents"></div>
+  </div>
+</section>
+
+<section id="todo" class="page hidden">
+  <div class="panel">
+    <h2>공부 할 일 목록 ✅</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>할 일</label>
+        <input id="todoText" placeholder="예: 영어 단어 30개 외우기">
+      </div>
+      <div class="field">
+        <label>마감 날짜</label>
+        <input type="date" id="todoDate">
+      </div>
+    </div>
+    <button class="primary" onclick="addTodo()">할 일 추가</button>
+    <div id="todoList" style="margin-top:15px"></div>
+  </div>
+</section>
+
+<section id="stats" class="page hidden">
+  <div class="panel">
+    <h2>과목별 공부 통계 📊</h2>
+    <div id="subjectStats"></div>
+  </div>
+  <div class="panel">
+    <h2>전체 복습 통계</h2>
+    <div id="reviewStats"></div>
+  </div>
+</section>
+
+<section id="subjects" class="page hidden">
+  <div class="panel">
+    <h2>나만의 과목 관리</h2>
+    <div class="row">
+      <input id="newSubject" placeholder="새 과목 이름 입력">
+      <button class="primary" onclick="addSubject()">추가</button>
+    </div>
+    <div id="subjectList" style="margin-top:15px"></div>
+    <p class="muted">과목을 삭제해도 기존 공부 기록은 삭제되지 않고 '미분류'로 이동해.</p>
+  </div>
+</section>
+
+<section id="room" class="page hidden">
+  <div class="panel">
+    <h2>나만의 공부방 🏠</h2>
+    <div class="room-preview" id="roomPreview">
+      <div id="roomTop">🌤️ 나의 공부방</div>
+      <div class="room-floor" id="roomDecor">🪴</div>
+      <div id="roomDesk">🪑 📚 💻</div>
+    </div>
+    <p class="muted">구매한 아이템을 장착해서 공부방을 꾸며 봐!</p>
+  </div>
+  <div class="panel">
+    <h2>꾸미기 상점 🛍️</h2>
+    <div id="shopItems" class="shop-grid"></div>
+  </div>
+  <div class="panel">
+    <h2>내 아이템</h2>
+    <div id="ownedItems" class="shop-grid"></div>
+  </div>
+</section>
+</div>
+
+<script>
+const REVIEW_DAYS = [1,3,7,15,30];
+const REWARDS = [5,20,100,300,500];
+const PENALTIES = [15,35,55];
+
+const DEFAULT_SUBJECTS = ["수학","영어","국어","과학","사회","역사","기타"];
+
+const SHOP = [
+  {id:"bg_pink",name:"핑크빛 방",emoji:"🌸",type:"bg",price:100,style:"linear-gradient(135deg,#ffdce9,#fff0d9)"},
+  {id:"bg_blue",name:"푸른 하늘 방",emoji:"☁️",type:"bg",price:100,style:"linear-gradient(135deg,#cceaff,#e5e5ff)"},
+  {id:"bg_night",name:"밤하늘 방",emoji:"🌙",type:"bg",price:200,style:"linear-gradient(135deg,#252b59,#7772aa)"},
+  {id:"plant",name:"작은 화분",emoji:"🪴",type:"decor",price:50},
+  {id:"cat",name:"귀여운 고양이",emoji:"🐱",type:"decor",price:150},
+  {id:"bear",name:"곰돌이 인형",emoji:"🧸",type:"decor",price:200},
+  {id:"lamp",name:"책상 조명",emoji:"💡",type:"desk",price:100},
+  {id:"books",name:"책 더미",emoji:"📚",type:"desk",price:80},
+  {id:"computer",name:"게이밍 컴퓨터",emoji:"🖥️",type:"desk",price:300}
+];
+
+function load(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : JSON.parse(value);
+  } catch(e) { return fallback; }
+}
+let studies = load("rm_studies", []);
+let todos = load("rm_todos", []);
+let subjects = load("rm_subjects", DEFAULT_SUBJECTS);
+let coins = Number(load("rm_coins", 0)) || 0;
+let coinLog = load("rm_coinLog", []);
+let room = load("rm_room", {owned:[],equipped:{bg:"",decor:"",desk:""}});
+let dark = load("rm_dark", false);
+
+let calendarDate = new Date();
+let selectedDate = today();
+
+function saveAll() {
+  localStorage.setItem("rm_studies",JSON.stringify(studies));
+  localStorage.setItem("rm_todos",JSON.stringify(todos));
+  localStorage.setItem("rm_subjects",JSON.stringify(subjects));
+  localStorage.setItem("rm_coins",JSON.stringify(coins));
+  localStorage.setItem("rm_coinLog",JSON.stringify(coinLog));
+  localStorage.setItem("rm_room",JSON.stringify(room));
+  localStorage.setItem("rm_dark",JSON.stringify(dark));
+  updateCoins();
+}
+
+function today() {
+  const d = new Date();
+  return dateString(d);
+}
+function dateString(d) {
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function addDays(date, days) {
+  const d = new Date(date+"T12:00:00");
+  d.setDate(d.getDate()+days);
+  return dateString(d);
+}
+function dayDiff(from,to) {
+  const a = new Date(from+"T12:00:00");
+  const b = new Date(to+"T12:00:00");
+  return Math.floor((b-a)/86400000);
+}
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function uid() {
+  return Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+}
+function updateCoins() {
+  document.getElementById("coinBalance").textContent=coins;
+  document.getElementById("homeCoins").textContent=coins+" 🪙";
+}
+function changeCoins(amount,reason) {
+  const before=coins;
+  coins=Math.max(0,coins+amount);
+  const actual=coins-before;
+  if(actual!==0) {
+    coinLog.unshift({id:uid(),amount:actual,reason,date:today()});
+    coinLog=coinLog.slice(0,200);
+  }
+  saveAll();
+}
+function toggleDark() {
+  dark=!dark;
+  document.body.classList.toggle("dark",dark);
+  saveAll();
+}
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(page).classList.remove("hidden");
+  document.querySelectorAll("nav button").forEach(b=>
+    b.classList.toggle("active",b.dataset.page===page));
+  renderAll();
+}
+document.querySelectorAll("nav button").forEach(b=>
+  b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+function addSubject() {
+  const input=document.getElementById("newSubject");
+  const name=input.value.trim();
+  if(!name) return alert("과목 이름을 입력해 줘.");
+  if(subjects.includes(name)) return alert("이미 있는 과목이야.");
+  subjects.push(name);
+  input.value="";
+  saveAll();
+  renderAll();
+}
+function deleteSubject(name) {
+  if(!confirm("'"+name+"' 과목을 삭제할까? 기존 공부 기록은 미분류로 이동해.")) return;
+  subjects=subjects.filter(s=>s!==name);
+  studies.forEach(s=>{if(s.subject===name)s.subject="미분류";});
+  if(!subjects.includes("미분류")) subjects.push("미분류");
+  saveAll();
+  renderAll();
+}
+function renderSubjects() {
+  const select=document.getElementById("studySubject");
+  const previous=select.value;
+  select.innerHTML=subjects.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  if(subjects.includes(previous))select.value=previous;
+  document.getElementById("subjectList").innerHTML=subjects.map(s=>`
+    <div class="subject-row">
+      <span>${esc(s)}</span>
+      <button class="danger small" data-delete-subject="${esc(s)}">삭제</button>
+    </div>`).join("");
+  document.querySelectorAll("[data-delete-subject]").forEach(b=>
+    b.onclick=()=>deleteSubject(b.dataset.deleteSubject));
+}
+
+function addStudy() {
+  const subject=document.getElementById("studySubject").value;
+  const content=document.getElementById("studyContent").value.trim();
+  const date=document.getElementById("studyDate").value;
+  if(!content) return alert("공부한 내용을 입력해 줘.");
+  if(!date) return alert("공부한 날짜를 선택해 줘.");
+  if(date>today()) return alert("미래 날짜는 등록할 수 없어.");
+  studies.unshift({
+    id:uid(),subject,content,date,
+    completed:[],penaltyDays:{},finishBonusPaid:false
+  });
+  document.getElementById("studyContent").value="";
+  saveAll();
+  renderAll();
+  alert("공부 기록이 저장됐어!");
+}
+
+// 지연된 복습의 일일 패널티를 계산한다.
+// 1일째 15, 2일째 35, 3일째부터 매일 55코인.
+function applyPenalties() {
+  let changed=false;
+  studies.forEach(study=>{
+    if(!study.penaltyDays)study.penaltyDays={};
+    if(!study.completed)study.completed=[];
+    REVIEW_DAYS.forEach((interval,index)=>{
+      if(study.completed.includes(index))return;
+      const due=addDays(study.date,interval);
+      const lateDays=Math.max(0,dayDiff(due,today()));
+      const applied=Number(study.penaltyDays[index]||0);
+      if(lateDays<=applied)return;
+      for(let day=applied+1;day<=lateDays;day++) {
+        const penalty=PENALTIES[Math.min(day-1,2)];
+        changeCoins(-penalty,`지연 패널티 (${study.subject} ${index+1}차 복습 ${day}일 지연)`);
+      }
+      study.penaltyDays[index]=lateDays;
+      changed=true;
+    });
+  });
+  if(changed)saveAll();
+}
+function getReviewStatus(study,index) {
+  const due=addDays(study.date,REVIEW_DAYS[index]);
+  const completed=study.completed.includes(index);
+  const late=dayDiff(due,today());
+  return {due,completed,late,overdue:!completed&&late>0};
+}
+function completeReview(studyId,index) {
+  applyPenalties();
+  const study=studies.find(s=>s.id===studyId);
+  if(!study||study.completed.includes(index))return;
+  study.completed.push(index);
+  changeCoins(REWARDS[index],`${study.subject} ${index+1}차 복습 완료`);
+  if(study.completed.length===REVIEW_DAYS.length&&!study.finishBonusPaid) {
+    study.finishBonusPaid=true;
+    changeCoins(100,`${study.subject} 복습 루틴 완주 보너스`);
+    alert("🎉 복습 루틴 완주! 보너스 100코인을 받았어!");
+  } else {
+    alert(`복습 완료! ${REWARDS[index]}코인을 받았어!`);
+  }
+  saveAll();
+  renderAll();
+}
+function deleteStudy(id) {
+  if(!confirm("이 공부 기록과 복습 일정을 삭제할까?"))return;
+  studies=studies.filter(s=>s.id!==id);
+  saveAll();renderAll();
+}
+function reviewHTML(study,index) {
+  const st=getReviewStatus(study,index);
+  let status="";
+  if(st.completed)status='<span class="done">완료</span>';
+  else if(st.overdue)status=`<span class="late"> ${st.late}일 지연</span>`;
+  else if(st.due===today())status='<span class="tag">오늘 복습</span>';
+  else status='<span class="muted">예정</span>';
+  return `<div class="item">
+    <div class="row">
+      <div>
+        <span class="tag">${esc(study.subject)}</span>
+        <strong>${index+1}차 복습</strong>
+        <span class="reward">+${REWARDS[index]}🪙</span>
+      </div>
+      ${status}
+    </div>
+    <p>${esc(study.content)}</p>
+    <div class="row">
+      <span class="muted">복습 예정일: ${st.due}</span>
+      ${st.completed?"":`<button class="primary small" onclick="completeReview('${study.id}',${index})">복습 완료</button>`}
+    </div>
+  </div>`;
+}
+function allReviews() {
+  const list=[];
+  studies.forEach(s=>REVIEW_DAYS.forEach((d,i)=>{
+    list.push({study:s,index:i,...getReviewStatus(s,i)});
+  }));
+  return list.sort((a,b)=>a.due.localeCompare(b.due));
+}
+function renderReviews() {
+  const filter=document.getElementById("reviewFilter").value;
+  const list=allReviews().filter(r=>{
+    if(filter==="today")return !r.completed&&r.due===today();
+    if(filter==="late")return r.overdue;
+    if(filter==="done")return r.completed;
+    return true;
+  });
+  document.getElementById("reviewList").innerHTML=list.length?
+    list.map(r=>reviewHTML(r.study,r.index)).join():
+    '<div class="empty">해당하는 복습이 없어!</div>';
+}
+function renderHome() {
+  const list=allReviews();
+  const todayList=list.filter(r=>!r.completed&&r.due===today());
+  const doneToday=list.filter(r=>r.completed&&r.due===today());
+  const late=list.filter(r=>r.overdue);
+  document.getElementById("todayCount").textContent=todayList.length+late.length;
+  document.getElementById("doneCount").textContent=doneToday.length;
+  document.getElementById("studyCount").textContent=studies.length;
+  document.getElementById("homeReviews").innerHTML=
+    (todayList.length||late.length)?
+    [...late,...todayList].slice(0,8).map(r=>reviewHTML(r.study,r.index)).join():
+    '<div class="empty">오늘은 복습할 항목이 없어! 🎉</div>';
+}
+
+function moveMonth(delta) {
+  calendarDate.setMonth(calendarDate.getMonth()+delta);
+  renderCalendar();
+}
+function renderCalendar() {
+  const year=calendarDate.getFullYear(),month=calendarDate.getMonth();
+  document.getElementById("monthTitle").textContent=`${year}년 ${month+1}월`;
+  const first=new Date(year,month,1);
+  const start=new Date(year,month,1-first.getDay());
+  const names=["일","월","화","수","목","금","토"];
+  let html=names.map(n=>`<div class="day-name">${n}</div>`).join("");
+  for(let i=0;i<42;i++) {
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const ds=dateString(d);
+    const has=allReviews().some(r=>r.due===ds);
+    html+=`<div class="day ${d.getMonth()!==month?"other":""} ${ds===today()?"today":""} ${ds===selectedDate?"selected":""} ${has?"has-event":""}" data-date="${ds}">
+      ${d.getDate()}
+    </div>`;
+  }
+  document.getElementById("calendarGrid").innerHTML=html;
+  document.querySelectorAll(".day[data-date]").forEach(el=>
+    el.onclick=()=>{selectedDate=el.dataset.date;renderCalendar();renderSelectedEvents();});
+  renderSelectedEvents();
+}
+function renderSelectedEvents() {
+  document.getElementById("selectedTitle").textContent=selectedDate+" 일정";
+  const list=allReviews().filter(r=>r.due===selectedDate);
+  document.getElementById("selectedEvents").innerHTML=list.length?
+    list.map(r=>reviewHTML(r.study,r.index)).join():
+    '<div class="empty">이 날짜에는 복습 일정이 없어.</div>';
+}
+
+function addTodo() {
+  const text=document.getElementById("todoText").value.trim();
+  const date=document.getElementById("todoDate").value;
+  if(!text)return alert("할 일을 입력해 줘.");
+  todos.push({id:uid(),text,date,done:false});
+  document.getElementById("todoText").value="";
+  saveAll();renderTodos();
+}
+function toggleTodo(id) {
+  const t=todos.find(t=>t.id===id);
+  if(t)t.done=!t.done;
+  saveAll();renderTodos();
+}
+function deleteTodo(id) {
+  todos=todos.filter(t=>t.id!==id);
+  saveAll();renderTodos();
+}
+function renderTodos() {
+  document.getElementById("todoList").innerHTML=todos.length?
+    todos.map(t=>`<div class="item row">
+      <div>
+        <label><input type="checkbox" style="width:auto" ${t.done?"checked":""} onchange="toggleTodo('${t.id}')">
+        <span style="${t.done?"text-decoration:line-through;opacity:.5":""}">${esc(t.text)}</span></label>
+        <div class="muted">${t.date||"날짜 미정"}</div>
+      </div>
+      <button class="danger small" onclick="deleteTodo('${t.id}')">삭제</button>
+    </div>`).join():
+    '<div class="empty">등록된 할 일이 없어.</div>';
+}
+function renderStats() {
+  const counts={};
+  studies.forEach(s=>counts[s.subject]=(counts[s.subject]||0)+1);
+  const max=Math.max(1,...Object.values(counts));
+  document.getElementById("subjectStats").innerHTML=Object.keys(counts).length?
+    Object.entries(counts).map(([name,count])=>`
+      <div class="item">
+        <div class="row"><strong>${esc(name)}</strong><span>${count}개</span></div>
+        <div class="bar-bg"><div class="bar" style="width:${count/max*100}%"></div></div>
+      </div>`).join():
+    '<div class="empty">아직 공부 기록이 없어.</div>';
+  const all=allReviews();
+  const completed=all.filter(r=>r.completed).length;
+  const due=all.filter(r=>r.due<=today()).length;
+  document.getElementById("reviewStats").innerHTML=`
+    <div class="grid">
+      <div class="stat"><span>전체 복습 횟수</span><strong>${all.length}</strong></div>
+      <div class="stat"><span>완료한 복습</span><strong>${completed}</strong></div>
+      <div class="stat"><span>도래한 복습</span><strong>${due}</strong></div>
+      <div class="stat"><span>완주한 공부</span><strong>${studies.filter(s=>s.completed.length===5).length}</strong></div>
+    </div>
+    <p class="muted">복습 완료율: ${due?Math.round(all.filter(r=>r.completed&&r.due<=today()).length/due*100):0}% (현재까지 예정일이 도래한 복습 기준)</p>`;
+}
+
+function buyItem(id) {
+  const item=SHOP.find(x=>x.id===id);
+  if(!item||room.owned.includes(id))return;
+  if(coins<item.price)return alert("코인이 부족해!");
+  if(!confirm(`${item.name}을(를) ${item.price}코인에 구매할까?`))return;
+  changeCoins(-item.price,`${item.name} 구매`);
+  room.owned.push(id);
+  saveAll();renderRoom();
+}
+function equipItem(id) {
+  const item=SHOP.find(x=>x.id===id);
+  if(!item||!room.owned.includes(id))return;
+  room.equipped[item.type]=id;
+  saveAll();renderRoom();
+}
+function renderRoom() {
+  const bg=SHOP.find(x=>x.id===room.equipped.bg);
+  const decor=SHOP.find(x=>x.id===room.equipped.decor);
+  const desk=SHOP.find(x=>x.id===room.equipped.desk);
+  const preview=document.getElementById("roomPreview");
+  preview.style.background=bg?bg.style:"linear-gradient(135deg,#d9e8ff,#e9ddff)";
+  document.getElementById("roomTop").textContent=bg?bg.name+" 공부방":"🌤️ 나의 공부방";
+  document.getElementById("roomDecor").textContent=decor?decor.emoji:"🪴";
+  document.getElementById("roomDesk").textContent=desk?desk.emoji+" 📚":"🪑 📚 💻";
+  document.getElementById("shopItems").innerHTML=SHOP.map(item=>{
+    const owned=room.owned.includes(item.id);
+    return `<div class="shop-item">
+      <div class="emoji">${item.emoji}</div>
+      <strong>${item.name}</strong>
+      <p class="muted">${item.price} 🪙</p>
+      <button class="${owned?"secondary":"primary"} small" ${owned?"disabled":""}
+        onclick="buyItem('${item.id}')">${owned?"구매 완료":"구매하기"}</button>
+    </div>`;
+  }).join("");
+  document.getElementById("ownedItems").innerHTML=room.owned.length?
+    room.owned.map(id=>{
+      const item=SHOP.find(x=>x.id===id);
+      if(!item)return "";
+      const equipped=room.equipped[item.type]===id;
+      return `<div class="shop-item">
+        <div class="emoji">${item.emoji}</div>
+        <strong>${item.name}</strong>
+        <button class="${equipped?"success":"secondary"} small"
+          onclick="equipItem('${id}')">${equipped?"장착 중":"장착하기"}</button>
+      </div>`;
+    }).join():
+    '<div class="empty">아직 구매한 아이템이 없어.</div>';
+}
+function renderAll() {
+  renderSubjects();
+  renderHome();
+  renderReviews();
+  renderCalendar();
+  renderTodos();
+  renderStats();
+  renderRoom();
+  updateCoins();
+}
+
+// 브라우저 알림 권한 요청
+async function enableNotifications() {
+  if(!("Notification" in window))return alert("이 브라우저는 알림을 지원하지 않아.");
+  const permission=await Notification.requestPermission();
+  if(permission==="granted") {
+    alert("알림이 허용됐어! 사이트가 열려 있을 때 복습 알림을 확인할 수 있어.");
+    checkNotifications();
+  } else alert("브라우저 설정에서 알림을 허용해 줘.");
+}
+function checkNotifications() {
+  if(!("Notification" in window)||Notification.permission!=="granted")return;
+  const key="rm_notified_"+today();
+  if(localStorage.getItem(key)=== "yes")return;
+  const due=allReviews().filter(r=>!r.completed&&(r.due===today()||r.overdue));
+  if(due.length) {
+    new Notification("RE:MEMORY 복습 알림",{
+      body:`오늘 확인할 복습이 ${due.length}개 있어!`
+    });
+    localStorage.setItem(key,"yes");
+  }
+}
+
+// 기존 데이터와 호환
+studies.forEach(s=>{
+  if(!Array.isArray(s.completed))s.completed=[];
+  if(!s.penaltyDays)s.penaltyDays={};
+  if(typeof s.finishBonusPaid!=="boolean")
+    s.finishBonusPaid=s.completed.length>=5;
+  if(!subjects.includes(s.subject)&&s.subject) {
+    if(!subjects.includes(s.subject))subjects.push(s.subject);
+  }
+});
+
+document.getElementById("studyDate").value=today();
+document.getElementById("todoDate").value=today();
+document.body.classList.toggle("dark",dark);
+
+// 처음 실행할 때 지연 패널티 계산
+applyPenalties();
+renderAll();
+checkNotifications();
+
+// 사이트를 켜 둔 상태에서도 날짜가 바뀌면 확인
+setInterval(()=>{
+  applyPenalties();
+  checkNotifications();
+  renderAll();
+},60000);
+
+// 알림 버튼은 홈 화면에서 사용할 수 있도록 단축키 제공
+document.addEventListener("keydown",e=>{
+  if(e.altKey&&e.key.toLowerCase()==="n")enableNotifications();
+});
+</script>
+</body>
+</html>
